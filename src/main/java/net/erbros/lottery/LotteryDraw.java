@@ -3,37 +3,29 @@ package net.erbros.lottery;
 import java.util.TimerTask;
 
 
-class LotteryDraw extends TimerTask
-{
+class LotteryDraw extends TimerTask {
 
-	final private Lottery plugin;
-	final private boolean draw;
+    final private Lottery plugin;
+    final private boolean draw;
 
-	public LotteryDraw(final Lottery plugin, final boolean draw)
-	{
-		this.plugin = plugin;
-		this.draw = draw;
-	}
+    public LotteryDraw(final Lottery plugin, final boolean draw) {
+        this.plugin = plugin;
+        this.draw = draw;
+    }
 
-	public void run()
-	{
+    public void run() {
 
-		if (draw && plugin.isLotteryDue())
-		{
-			plugin.getServer().getScheduler().scheduleSyncDelayedTask(
-					plugin, new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					plugin.lotteryDraw();
-				}
-			});
+        if (draw && plugin.isLotteryDue()) {
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+                    plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            plugin.lotteryDraw();
+                        }
+                    });
 
-		}
-		else
-		{
-			plugin.extendLotteryDraw();
-		}
-	}
+        } else {
+            plugin.extendLotteryDraw();
+        }
+    }
 }
