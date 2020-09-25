@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 public class LotteryConfig {
 
-    final private Lottery plugin;
+    private Lottery plugin;
     private FileConfiguration config;
     private double cost;
     private double hours;
@@ -39,7 +39,7 @@ public class LotteryConfig {
     private HashMap<String, List<String>> messages;
 
 
-    public LotteryConfig(final Lottery plugin) {
+    public LotteryConfig(Lottery plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfig();
     }
@@ -65,7 +65,7 @@ public class LotteryConfig {
         ticketsAvailable = config.getInt("config.numberOfTicketsAvailable", 0);
         jackpot = config.getDouble("config.jackpot", 0);
         nextexec = config.getLong("config.nextexec");
-        cost = Etc.formatAmount(config.getDouble("config.cost", 5), useEconomy);
+        cost = Utils.formatAmount(config.getDouble("config.cost", 5), useEconomy);
         lastwinner = config.getString("config.lastwinner", "");
         lastwinneramount = config.getDouble("config.lastwinneramount", 0);
         buyingExtendDeadline = config.getBoolean("config.buyingExtend.enabled", true);
@@ -80,7 +80,7 @@ public class LotteryConfig {
         plugin.saveConfig();
     }
 
-    public void set(final String path, final Object value) {
+    public void set(String path, Object value) {
         config.set(path, value);
         plugin.saveConfig();
     }
@@ -198,17 +198,17 @@ public class LotteryConfig {
         return pluralTl;
     }
 
-    public List<String> getMessage(final String topic) throws Exception {
+    public List<String> getMessage(String topic) throws Exception {
         if (!messages.containsKey(topic)) {
             throw new Exception("Invalid Translation key");
         }
         return Collections.unmodifiableList(messages.get(topic));
     }
 
-    public List<String> formatCustomMessage(final String node, final String def) {
-        final List<String> fList = new ArrayList<String>();
+    public List<String> formatCustomMessage(String node, String def) {
+        List<String> fList = new ArrayList<String>();
         // Lets find a msg.
-        final String msg = config.getString(node, def);
+        String msg = config.getString(node, def);
         config.set(node, msg);
 
         // Lets put this in a arrayList in case we want more than one line.
@@ -217,7 +217,7 @@ public class LotteryConfig {
     }
 
     // Enable some debugging?
-    public void debugMsg(final String msg) {
+    public void debugMsg(String msg) {
         if (config.getBoolean("config.debug") && msg != null) {
             plugin.getLogger().log(Level.INFO, msg);
         }
@@ -227,7 +227,7 @@ public class LotteryConfig {
         return cost;
     }
 
-    public void setCost(final double cost) {
+    public void setCost(double cost) {
         this.cost = cost;
         set("config.cost", cost);
     }
@@ -236,7 +236,7 @@ public class LotteryConfig {
         return hours;
     }
 
-    public void setHours(final double hours) {
+    public void setHours(double hours) {
         this.hours = hours;
         set("config.hours", hours);
     }
@@ -245,7 +245,7 @@ public class LotteryConfig {
         return nextexec;
     }
 
-    public void setNextexec(final long nextexec) {
+    public void setNextexec(long nextexec) {
         this.nextexec = nextexec;
         set("config.nextexec", nextexec);
     }
@@ -262,12 +262,12 @@ public class LotteryConfig {
         return extraInPot;
     }
 
-    public void setExtraInPot(final double extraInPot) {
+    public void setExtraInPot(double extraInPot) {
         this.extraInPot = extraInPot;
         set("config.extraInPot", extraInPot);
     }
 
-    public void addExtraInPot(final double extra) {
+    public void addExtraInPot(double extra) {
         extraInPot += extra;
         setExtraInPot(extraInPot);
     }
@@ -288,7 +288,7 @@ public class LotteryConfig {
         return netPayout;
     }
 
-    public void setNetPayout(final double netPayout) {
+    public void setNetPayout(double netPayout) {
         this.netPayout = netPayout;
         set("config.netPayout", netPayout);
     }
@@ -301,7 +301,7 @@ public class LotteryConfig {
         return maxTicketsEachUser;
     }
 
-    public void setMaxTicketsEachUser(final int maxTicketsEachUser) {
+    public void setMaxTicketsEachUser(int maxTicketsEachUser) {
         this.maxTicketsEachUser = maxTicketsEachUser;
         set("config.maxTicketsEachUser", maxTicketsEachUser);
     }
@@ -314,7 +314,7 @@ public class LotteryConfig {
         return jackpot;
     }
 
-    public void setJackpot(final double jackpot) {
+    public void setJackpot(double jackpot) {
         this.jackpot = jackpot;
         set("config.jackpot", jackpot);
     }
@@ -323,7 +323,7 @@ public class LotteryConfig {
         return lastwinner;
     }
 
-    public void setLastwinner(final String lastwinner) {
+    public void setLastwinner(String lastwinner) {
         this.lastwinner = lastwinner;
         set("config.lastwinner", lastwinner);
     }
@@ -332,7 +332,7 @@ public class LotteryConfig {
         return lastwinneramount;
     }
 
-    public void setLastwinneramount(final double lastwinneramount) {
+    public void setLastwinneramount(double lastwinneramount) {
         this.lastwinneramount = lastwinneramount;
         set("config.lastwinneramount", lastwinneramount);
     }

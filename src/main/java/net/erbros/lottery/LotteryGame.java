@@ -16,15 +16,15 @@ import java.util.regex.Matcher;
 
 public class LotteryGame {
 
-    final private Lottery plugin;
-    final private LotteryConfig lConfig;
+    private Lottery plugin;
+    private LotteryConfig lConfig;
 
-    public LotteryGame(final Lottery plugin) {
+    public LotteryGame(Lottery plugin) {
         this.plugin = plugin;
         lConfig = plugin.getLotteryConfig();
     }
 
-    public boolean addPlayer(final Player player, final int maxAmountOfTickets, final int numberOfTickets) {
+    public boolean addPlayer(Player player, int maxAmountOfTickets, int numberOfTickets) {
 
         // Do the ticket cost money or item?
         if (lConfig.useEconomy()) {
@@ -57,7 +57,7 @@ public class LotteryGame {
         // If the user paid, continue. Else we would already have sent return
         // false
         try {
-            final BufferedWriter out = new BufferedWriter(
+            BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryPlayers.txt", true));
             for (Integer i = 0; i < numberOfTickets; i++) {
                 out.write(player.getName());
@@ -71,14 +71,14 @@ public class LotteryGame {
         return true;
     }
 
-    public Integer playerInList(final Player player) {
+    public Integer playerInList(Player player) {
         return playerInList(player.getName());
     }
 
-    public Integer playerInList(final String player) {
+    public Integer playerInList(String player) {
         int numberOfTickets = 0;
         try {
-            final BufferedReader in = new BufferedReader(
+            BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryPlayers.txt"));
 
             String str;
@@ -95,10 +95,10 @@ public class LotteryGame {
         return numberOfTickets;
     }
 
-    public ArrayList<String> playersInFile(final String file) {
-        final ArrayList<String> players = new ArrayList<String>();
+    public ArrayList<String> playersInFile(String file) {
+        ArrayList<String> players = new ArrayList<String>();
         try {
-            final BufferedReader in = new BufferedReader(
+            BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + file));
             String str;
             while ((str = in.readLine()) != null) {
@@ -113,8 +113,8 @@ public class LotteryGame {
 
     public double winningAmount() {
         double amount;
-        final ArrayList<String> players = playersInFile("lotteryPlayers.txt");
-        amount = players.size() * Etc.formatAmount(lConfig.getCost(), lConfig.useEconomy());
+        ArrayList<String> players = playersInFile("lotteryPlayers.txt");
+        amount = players.size() * Utils.formatAmount(lConfig.getCost(), lConfig.useEconomy());
         lConfig.debugMsg("playerno: " + players.size() + " amount: " + amount);
         // Set the net payout as configured in the config.
         if (lConfig.getNetPayout() > 0) {
@@ -128,7 +128,7 @@ public class LotteryGame {
         amount += lConfig.getJackpot();
 
         // format it once again.
-        amount = Etc.formatAmount(amount, lConfig.useEconomy());
+        amount = Utils.formatAmount(amount, lConfig.useEconomy());
 
         return amount;
     }
@@ -141,35 +141,35 @@ public class LotteryGame {
             return amount;
         }
 
-        final ArrayList<String> players = playersInFile("lotteryPlayers.txt");
-        amount = players.size() * Etc.formatAmount(lConfig.getCost(), lConfig.useEconomy());
+        ArrayList<String> players = playersInFile("lotteryPlayers.txt");
+        amount = players.size() * Utils.formatAmount(lConfig.getCost(), lConfig.useEconomy());
 
         // calculate the tax.
         amount = amount * (1 - (lConfig.getNetPayout() / 100));
 
         // format it once again.
-        amount = Etc.formatAmount(amount, lConfig.useEconomy());
+        amount = Utils.formatAmount(amount, lConfig.useEconomy());
 
         return amount;
     }
 
     public int ticketsSold() {
         int sold;
-        final ArrayList<String> players = playersInFile("lotteryPlayers.txt");
+        ArrayList<String> players = playersInFile("lotteryPlayers.txt");
         sold = players.size();
         return sold;
     }
 
     public void removeFromClaimList(Player player) {
         // Do the player have something to claim?
-        final ArrayList<String> otherPlayersClaims = new ArrayList<>();
-        final ArrayList<String> claimArray = new ArrayList<>();
+        ArrayList<String> otherPlayersClaims = new ArrayList<>();
+        ArrayList<String> claimArray = new ArrayList<>();
         try {
-            final BufferedReader in = new BufferedReader(
+            BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryClaim.txt"));
             String str;
             while ((str = in.readLine()) != null) {
-                final String[] split = str.split(":");
+                String[] split = str.split(":");
                 if (split[0].equals(player.getName())) {
                     // Adding this to player claim.
                     claimArray.add(str);
@@ -191,12 +191,12 @@ public class LotteryGame {
             int claimAmount = Integer.parseInt(split[1]);
             Material claimMaterial = Material.valueOf(split[2]);
             player.getInventory().addItem(new ItemStack(claimMaterial, claimAmount));
-            sendMessage(player, "PlayerClaim", Etc.formatMaterialName(claimMaterial));
+            sendMessage(player, "PlayerClaim", Utils.formatMaterialName(claimMaterial));
         }
 
         // Add the other players claims to the file again.
         try {
-            final BufferedWriter out = new BufferedWriter(
+            BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryClaim.txt"));
             for (String otherPlayersClaim : otherPlayersClaims) {
                 out.write(otherPlayersClaim);
@@ -209,10 +209,10 @@ public class LotteryGame {
         }
     }
 
-    public void addToClaimList(final String playerName, final int winningAmount, Material winningMaterial) {
+    public void addToClaimList(String playerName, int winningAmount, Material winningMaterial) {
         // Then first add new winner, and after that the old winners.
         try {
-            final BufferedWriter out = new BufferedWriter(
+            BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryClaim.txt", true));
             out.write(playerName + ":" + winningAmount + ":" + winningMaterial);
             out.newLine();
@@ -223,9 +223,9 @@ public class LotteryGame {
 
     public void addToWinnerList(String playerName, Double winningAmount, int winningCurrency, Material winningMaterial) {
         // This list should be 10 players long.
-        final ArrayList<String> winnerArray = new ArrayList<String>();
+        ArrayList<String> winnerArray = new ArrayList<String>();
         try {
-            final BufferedReader in = new BufferedReader(
+            BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryWinners.txt"));
             String str;
             while ((str = in.readLine()) != null) {
@@ -236,7 +236,7 @@ public class LotteryGame {
         }
         // Then first add new winner, and after that the old winners.
         try {
-            final BufferedWriter out = new BufferedWriter(
+            BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryWinners.txt"));
             out.write(playerName + ":" + winningAmount + ":" + (winningMaterial != null ? winningMaterial : winningCurrency));
             out.newLine();
@@ -259,29 +259,22 @@ public class LotteryGame {
     }
 
     public long timeUntil() {
-        final long nextDraw = lConfig.getNextexec();
+        long nextDraw = lConfig.getNextexec();
         return ((nextDraw - System.currentTimeMillis()) / 1000);
     }
 
-    public String timeUntil(final boolean mini) {
-        final long timeLeft = timeUntil();
-        // If negative number, just tell them its DRAW TIME!
+    public String timeUntil(boolean mini) {
+        long timeLeft = timeUntil();
         if (timeLeft < 0) {
-            // Lets make it draw at once.. ;)
             plugin.startTimerSchedule(true);
-            // And return some string to let the user know we are doing our best ;)
-            if (mini) {
-                return "Soon";
-            }
-            return "Draw will occur soon!";
-
+            return mini ? "Soon" : "Draw will occur soon!";
         }
 
-        return Etc.timeUntil(timeLeft, mini, lConfig);
+        return Utils.timeUntil(timeLeft, mini, lConfig);
     }
 
     public boolean getWinner() {
-        final ArrayList<String> players = playersInFile("lotteryPlayers.txt");
+        ArrayList<String> players = playersInFile("lotteryPlayers.txt");
 
         if (players.isEmpty()) {
             broadcastMessage("NoWinnerTickets");
@@ -296,14 +289,14 @@ public class LotteryGame {
                 // If it wasn't a player winning, then do some stuff. If it was a player, just continue below.
                 if (rand > players.size() - 1) {
                     // No winner this time, pot goes on to jackpot!
-                    final double jackpot = winningAmount();
+                    double jackpot = winningAmount();
 
                     lConfig.setJackpot(jackpot);
 
                     addToWinnerList("Jackpot", jackpot, 0, lConfig.getMaterial());
                     lConfig.setLastwinner("Jackpot");
                     lConfig.setLastwinneramount(jackpot);
-                    broadcastMessage("NoWinnerRollover", Etc.formatCost(jackpot, lConfig));
+                    broadcastMessage("NoWinnerRollover", Utils.getCostMessage(jackpot, lConfig));
                     clearAfterGettingWinner();
                     return true;
                 }
@@ -324,7 +317,7 @@ public class LotteryGame {
                 plugin.getEcon().depositPlayer(player, amount);
 
                 // Announce the winner:
-                broadcastMessage("WinnerCongrat", players.get(rand), Etc.formatCost(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
+                broadcastMessage("WinnerCongrat", players.get(rand), Utils.getCostMessage(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
                 addToWinnerList(players.get(rand), amount, 0, null);
 
                 double taxAmount = taxAmount();
@@ -337,17 +330,17 @@ public class LotteryGame {
                 }
             } else {
                 // let's throw it to an int.
-                final int matAmount = (int) Etc.formatAmount(amount, lConfig.useEconomy());
+                int matAmount = (int) Utils.formatAmount(amount, lConfig.useEconomy());
                 amount = (double) matAmount;
-                broadcastMessage("WinnerCongrat", players.get(rand), Etc.formatCost(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
+                broadcastMessage("WinnerCongrat", players.get(rand), Utils.getCostMessage(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
                 broadcastMessage("WinnerCongratClaim");
                 addToWinnerList(players.get(rand), amount, 0, lConfig.getMaterial());
 
                 addToClaimList(players.get(rand), matAmount, lConfig.getMaterial());
             }
             broadcastMessage(
-                    "WinnerSummary", Etc.realPlayersFromList(players).size(), lConfig.getPlural(
-                            "player", Etc.realPlayersFromList(players).size()), players.size(), lConfig.getPlural("ticket", players.size()));
+                    "WinnerSummary", Utils.realPlayersFromList(players).size(), lConfig.getPlural(
+                            "player", Utils.realPlayersFromList(players).size()), players.size(), lConfig.getPlural("ticket", players.size()));
 
             // Add last winner to config.
             lConfig.setLastwinner(players.get(rand));
@@ -370,7 +363,7 @@ public class LotteryGame {
         }
         // Clear file.
         try {
-            final BufferedWriter out = new BufferedWriter(
+            BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryPlayers.txt", false));
             out.write("");
             out.close();
@@ -379,7 +372,7 @@ public class LotteryGame {
         }
     }
 
-    public void broadcastMessage(final String topic, final Object... args) {
+    public void broadcastMessage(String topic, Object... args) {
         try {
             for (String message : lConfig.getMessage(topic)) {
                 String outMessage = formatCustomMessageLive(message, args);
@@ -396,7 +389,7 @@ public class LotteryGame {
         }
     }
 
-    public void sendMessage(final CommandSender player, final String topic, final Object... args) {
+    public void sendMessage(CommandSender player, String topic, Object... args) {
         try {
             for (String message : lConfig.getMessage(topic)) {
                 String outMessage = formatCustomMessageLive(message, args);
@@ -410,7 +403,7 @@ public class LotteryGame {
         }
     }
 
-    public String formatCustomMessageLive(final String message, final Object... args) throws Exception {
+    public String formatCustomMessageLive(String message, Object... args) throws Exception {
         //Lets give timeLeft back if user provie %draw%
         String outMessage = message.replaceAll("%draw%", Matcher.quoteReplacement(timeUntil(true)));
 
@@ -418,10 +411,10 @@ public class LotteryGame {
         outMessage = outMessage.replaceAll("%drawLong%", Matcher.quoteReplacement(timeUntil(false)));
 
         // %cost% = cost
-        outMessage = outMessage.replaceAll("%cost%", Matcher.quoteReplacement(Etc.formatCost(lConfig.getCost(), lConfig)));
+        outMessage = outMessage.replaceAll("%cost%", Matcher.quoteReplacement(Utils.getCostMessage(lConfig.getCost(), lConfig)));
 
         // %pot%
-        outMessage = outMessage.replaceAll("%pot%", Matcher.quoteReplacement(Etc.formatCost(winningAmount(), lConfig)));
+        outMessage = outMessage.replaceAll("%pot%", Matcher.quoteReplacement(Utils.getCostMessage(winningAmount(), lConfig)));
 
         // %prefix%
         outMessage = outMessage.replaceAll("%prefix%", Matcher.quoteReplacement(lConfig.getMessage("prefix").get(0)));

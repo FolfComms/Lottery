@@ -16,18 +16,18 @@ import java.util.ArrayList;
 
 public class MainCommandExecutor implements CommandExecutor {
 
-    final private Lottery plugin;
-    final private LotteryConfig lConfig;
-    final private LotteryGame lGame;
+    private Lottery plugin;
+    private LotteryConfig lConfig;
+    private LotteryGame lGame;
 
-    public MainCommandExecutor(final Lottery plugin) {
+    public MainCommandExecutor(Lottery plugin) {
         this.plugin = plugin;
         lConfig = plugin.getLotteryConfig();
         lGame = plugin.getLotteryGame();
     }
 
     @Override
-    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // Lets check if we have found a plugin for money.
         if (lConfig.useEconomy() && plugin.getEcon() == null) {
             lConfig.debugMsg("No money plugin found yet.");
@@ -78,17 +78,17 @@ public class MainCommandExecutor implements CommandExecutor {
         return true;
     }
 
-    public void commandNull(final CommandSender sender, final String[] args) {
+    public void commandNull(CommandSender sender, String[] args) {
         // Is this a console? If so, just tell that lottery is running and time until next draw.
         if (!(sender instanceof Player)) {
             sender.sendMessage("Hi Console - The Lottery plugin is running");
             lGame.sendMessage(sender, "DrawIn", lGame.timeUntil(false));
             return;
         }
-        final Player player = (Player) sender;
+        Player player = (Player) sender;
 
         // Check if we got any money/items in the pot.
-        final double amount = lGame.winningAmount();
+        double amount = lGame.winningAmount();
         lConfig.debugMsg("pot current total: " + amount);
         // Send some messages:
         lGame.sendMessage(sender, "DrawIn", lGame.timeUntil(false));
@@ -110,7 +110,7 @@ public class MainCommandExecutor implements CommandExecutor {
         // Show different things if we are using iConomy over
         // material.
         if (lConfig.getLastwinner() != null) {
-            lGame.sendMessage(sender, "LastWinner", lConfig.getLastwinner(), Etc.formatCost(lConfig.getLastwinneramount(), lConfig));
+            lGame.sendMessage(sender, "LastWinner", lConfig.getLastwinner(), Utils.getCostMessage(lConfig.getLastwinneramount(), lConfig));
         }
 
         // if not iConomy, make players check for claims.
@@ -119,7 +119,7 @@ public class MainCommandExecutor implements CommandExecutor {
         }
     }
 
-    public void commandMessages(final CommandSender sender, final String[] args) {
+    public void commandMessages(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
             lGame.sendMessage(sender, "ErrorConsole3");
             return;
@@ -135,7 +135,7 @@ public class MainCommandExecutor implements CommandExecutor {
         }
     }
 
-    public void commandHelp(final CommandSender sender, final String[] args) {
+    public void commandHelp(CommandSender sender, String[] args) {
         lGame.sendMessage(sender, "Help");
         // Are we dealing with admins?
         if (sender.hasPermission("lottery.admin.draw") || sender.hasPermission("lottery.admin.addtopot") || sender.hasPermission("lottery.admin.editconfig")) {
@@ -143,25 +143,25 @@ public class MainCommandExecutor implements CommandExecutor {
         }
     }
 
-    public void commandBuy(final CommandSender sender, final String[] args) {
+    public void commandBuy(CommandSender sender, String[] args) {
         // Is this a console? If so, just tell that lottery is running and time until next draw.
         if (!(sender instanceof Player)) {
             lGame.sendMessage(sender, "ErrorConsole");
             return;
         }
-        final Player player = (Player) sender;
+        Player player = (Player) sender;
 
         int buyTickets = 1;
         if (args.length > 1) {
             // How many tickets do the player want to buy?
-            buyTickets = Etc.parseInt(args[1]);
+            buyTickets = Utils.parseInt(args[1]);
 
             if (buyTickets < 1) {
                 buyTickets = 1;
             }
         }
 
-        final int allowedTickets = lConfig.getMaxTicketsEachUser() - lGame.playerInList(player);
+        int allowedTickets = lConfig.getMaxTicketsEachUser() - lGame.playerInList(player);
 
         if (buyTickets > allowedTickets && allowedTickets > 0) {
             buyTickets = allowedTickets;
@@ -189,7 +189,7 @@ public class MainCommandExecutor implements CommandExecutor {
         if (lGame.addPlayer(player, lConfig.getMaxTicketsEachUser(), buyTickets)) {
             // You got your ticket.
             lGame.sendMessage(
-                    sender, "BoughtTicket", buyTickets, lConfig.getPlural("ticket", buyTickets), Etc.formatCost(lConfig.getCost() * buyTickets, lConfig));
+                    sender, "BoughtTicket", buyTickets, lConfig.getPlural("ticket", buyTickets), Utils.getCostMessage(lConfig.getCost() * buyTickets, lConfig));
 
             // Can a user buy more than one ticket? How many
             // tickets have he bought now?
@@ -198,7 +198,7 @@ public class MainCommandExecutor implements CommandExecutor {
                         sender, "BoughtTickets", lGame.playerInList(player), lConfig.getPlural("ticket", lGame.playerInList(player)));
             }
             if (lConfig.isBuyingExtendDeadline() && lGame.timeUntil() < lConfig.getBuyingExtendRemaining()) {
-                final long timeBonus = (long) (lConfig.getBuyingExtendBase() + (lConfig.getBuyingExtendMultiplier() * Math.sqrt(
+                long timeBonus = (long) (lConfig.getBuyingExtendBase() + (lConfig.getBuyingExtendMultiplier() * Math.sqrt(
                         buyTickets)));
                 lConfig.setNextexec(lConfig.getNextexec() + (timeBonus * 1000));
             }
@@ -219,7 +219,7 @@ public class MainCommandExecutor implements CommandExecutor {
 
     }
 
-    public void commandClaim(final CommandSender sender, final String[] args) {
+    public void commandClaim(CommandSender sender, String[] args) {
         // Is this a console? If so, just tell that lottery is running and time until next draw.
         if (!(sender instanceof Player)) {
             lGame.sendMessage(sender, "ErrorConsole2");
@@ -229,17 +229,17 @@ public class MainCommandExecutor implements CommandExecutor {
         lGame.removeFromClaimList((Player) sender);
     }
 
-    public void commandDraw(final CommandSender sender, final String[] args) {
+    public void commandDraw(CommandSender sender, String[] args) {
         // Start a timer that ends in 3 secs.
         lGame.sendMessage(sender, "DrawNow");
         plugin.startTimerSchedule(true);
     }
 
-    public void commandWinners(final CommandSender sender, final String[] args) {
+    public void commandWinners(CommandSender sender, String[] args) {
         // Get the winners.
-        final ArrayList<String> winnerArray = new ArrayList<String>();
+        ArrayList<String> winnerArray = new ArrayList<String>();
         try {
-            final BufferedReader in = new BufferedReader(
+            BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryWinners.txt"));
             String str;
             while ((str = in.readLine()) != null) {
@@ -255,20 +255,20 @@ public class MainCommandExecutor implements CommandExecutor {
             if (split[2].equalsIgnoreCase("0")) {
                 winListPrice = plugin.getEcon().format(Double.parseDouble(split[1]));
             } else {
-                winListPrice = split[1] + " " + Etc.formatMaterialName(
+                winListPrice = split[1] + " " + Utils.formatMaterialName(
                         Material.valueOf(split[2]));
             }
             sender.sendMessage((i + 1) + ". " + split[0] + " " + winListPrice);
         }
     }
 
-    public void commandAddToPot(final CommandSender sender, final String[] args) {
+    public void commandAddToPot(CommandSender sender, String[] args) {
         if (args.length < 2) {
             lGame.sendMessage(sender, "HelpPot");
             return;
         }
 
-        final double addToPot = Etc.parseDouble(args[1]);
+        double addToPot = Utils.parseDouble(args[1]);
 
         if (addToPot == 0) {
             lGame.sendMessage(sender, "ErrorNumber");
@@ -278,13 +278,13 @@ public class MainCommandExecutor implements CommandExecutor {
         lGame.sendMessage(sender, "AddToPot", addToPot, lConfig.getExtraInPot());
     }
 
-    public void commandConfig(final CommandSender sender, final String[] args) {
+    public void commandConfig(CommandSender sender, String[] args) {
         if (args.length == 1) {
             lGame.sendMessage(sender, "HelpConfig");
             return;
         } else if (args.length > 2) {
             if (args[1].equalsIgnoreCase("cost")) {
-                final double newCoin = Etc.parseDouble(args[2]);
+                double newCoin = Utils.parseDouble(args[2]);
                 if (newCoin <= 0) {
                     lGame.sendMessage(sender, "ErrorNumber");
                 } else {
@@ -292,7 +292,7 @@ public class MainCommandExecutor implements CommandExecutor {
                     lConfig.setCost(newCoin);
                 }
             } else if (args[1].equalsIgnoreCase("hours")) {
-                final double newHours = Etc.parseDouble(args[2]);
+                double newHours = Utils.parseDouble(args[2]);
                 if (newHours <= 0) {
                     lGame.sendMessage(sender, "ErrorNumber");
                 } else {
@@ -301,7 +301,7 @@ public class MainCommandExecutor implements CommandExecutor {
                 }
 
             } else if (args[1].equalsIgnoreCase("maxTicketsEachUser") || args[1].equalsIgnoreCase("max")) {
-                final int newMaxTicketsEachUser = Etc.parseInt(args[2]);
+                int newMaxTicketsEachUser = Utils.parseInt(args[2]);
                 lGame.sendMessage(sender, "ConfigMax", newMaxTicketsEachUser);
                 lConfig.setMaxTicketsEachUser(newMaxTicketsEachUser);
             }

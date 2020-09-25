@@ -43,7 +43,7 @@ public class Lottery extends JavaPlugin {
             return;
         }
 
-        final PluginManager pm = getServer().getPluginManager();
+        PluginManager pm = getServer().getPluginManager();
 
         server = getServer();
 
@@ -81,7 +81,7 @@ public class Lottery extends JavaPlugin {
         return lConfig.getNextexec();
     }
 
-    protected void setNextexec(final long aNextexec) {
+    protected void setNextexec(long aNextexec) {
         lConfig.setNextexec(aNextexec);
     }
 
@@ -89,7 +89,7 @@ public class Lottery extends JavaPlugin {
         return getNextexec() > 0 && System.currentTimeMillis() + 1000 >= getNextexec();
     }
 
-    public void startTimerSchedule(final boolean drawAtOnce) {
+    public void startTimerSchedule(boolean drawAtOnce) {
         long extendtime;
         // Cancel any existing timers.
         if (timerStarted) {
@@ -170,7 +170,7 @@ public class Lottery extends JavaPlugin {
         runDrawTimer(extendtime);
     }
 
-    private void runDrawTimer(final long extendtime) {
+    private void runDrawTimer(long extendtime) {
         // Is this very long until? On servers with lag and long between
         // restarts there might be a very long time between when server
         // should have drawn winner and when it will draw. Perhaps help the
@@ -180,15 +180,15 @@ public class Lottery extends JavaPlugin {
             server.getScheduler().runTaskLaterAsynchronously(this, new LotteryDraw(this, true), extendtime);
             lConfig.debugMsg("LotteryDraw() " + extendtime + 100);
         } else {
-            final long newtime = extendtime / 10;
+            long newtime = extendtime / 10;
             server.getScheduler().runTaskLaterAsynchronously(this, new LotteryDraw(this, false), newtime);
             lConfig.debugMsg("extendLotteryDraw() " + newtime);
         }
     }
 
     public long extendTime() {
-        final double exacttime = lConfig.getHours() * 60 * 60 * 1000;
-        final long extendTime = (long) exacttime;
+        double exacttime = lConfig.getHours() * 60 * 60 * 1000;
+        long extendTime = (long) exacttime;
         lConfig.debugMsg("extendTime: " + extendTime);
         return extendTime;
     }

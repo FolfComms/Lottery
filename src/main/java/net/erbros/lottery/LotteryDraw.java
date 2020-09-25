@@ -5,10 +5,10 @@ import java.util.TimerTask;
 
 class LotteryDraw extends TimerTask {
 
-    final private Lottery plugin;
-    final private boolean draw;
+    private Lottery plugin;
+    private boolean draw;
 
-    public LotteryDraw(final Lottery plugin, final boolean draw) {
+    public LotteryDraw(Lottery plugin, boolean draw) {
         this.plugin = plugin;
         this.draw = draw;
     }
