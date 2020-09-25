@@ -1,6 +1,5 @@
 package net.erbros.lottery;
 
-import net.erbros.lottery.register.payment.Method;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -32,13 +31,13 @@ public class LotteryGame {
             // Do the player have money?
             // First checking if the player got an account, if not let's create
             // it.
-            plugin.getMethod().hasAccount(player);
-            final Method.MethodAccount account = plugin.getMethod().getAccount(player);
+            if (!plugin.getEcon().hasAccount(player)) {
+                plugin.getEcon().createPlayerAccount(player);
+            }
 
             // And lets withdraw some money
-            if (account != null && account.hasEnough(lConfig.getCost() * numberOfTickets)) {
-                // Removing coins from players account.
-                account.subtract(lConfig.getCost() * numberOfTickets);
+            if (plugin.getEcon().has(player, lConfig.getCost() * numberOfTickets)) {
+                plugin.getEcon().withdrawPlayer(player, lConfig.getCost() * numberOfTickets);
             } else {
                 return false;
             }
@@ -314,18 +313,16 @@ public class LotteryGame {
             }
 
 
-            lConfig.debugMsg("Rand: " + Integer.toString(rand));
+            lConfig.debugMsg("Rand: " + rand);
             double amount = winningAmount();
             OfflinePlayer player = Bukkit.getOfflinePlayer(players.get(rand));
             int ticketsBought = playerInList(players.get(rand));
             if (lConfig.useEconomy()) {
-                plugin.getMethod().hasAccount(player);
-                final Method.MethodAccount account = plugin.getMethod().getAccount(player);
+                if (!plugin.getEcon().hasAccount(player)) {
+                    plugin.getEcon().createPlayerAccount(player);
+                }
+                plugin.getEcon().depositPlayer(player, amount);
 
-                // Just make sure the account exists, or make it with default
-                // value.
-                // Add money to account.
-                account.add(amount);
                 // Announce the winner:
                 broadcastMessage("WinnerCongrat", players.get(rand), Etc.formatCost(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
                 addToWinnerList(players.get(rand), amount, 0, null);
@@ -333,15 +330,11 @@ public class LotteryGame {
                 double taxAmount = taxAmount();
                 if (taxAmount() > 0 && lConfig.getTaxTarget().length() > 0) {
                     OfflinePlayer target = Bukkit.getOfflinePlayer(lConfig.getTaxTarget());
-                    plugin.getMethod().hasAccount(target);
-                    final Method.MethodAccount targetaccount = plugin.getMethod().getAccount(target);
-                    if (targetaccount != null) {
-                        targetaccount.add(taxAmount);
-                    } else {
-                        plugin.getLogger().warning("Invalid economy account specified '" + target + "', tax lost.  Fix your 'taxTarget' in config file.");
+                    if (!plugin.getEcon().hasAccount(target)) {
+                        plugin.getEcon().createPlayerAccount(target);
                     }
+                    plugin.getEcon().depositPlayer(target, taxAmount);
                 }
-
             } else {
                 // let's throw it to an int.
                 final int matAmount = (int) Etc.formatAmount(amount, lConfig.useEconomy());

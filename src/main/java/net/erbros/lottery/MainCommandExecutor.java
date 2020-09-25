@@ -1,6 +1,5 @@
 package net.erbros.lottery;
 
-import net.erbros.lottery.register.payment.Methods;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,9 +28,8 @@ public class MainCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-
         // Lets check if we have found a plugin for money.
-        if (lConfig.useEconomy() && !Methods.hasMethod()) {
+        if (lConfig.useEconomy() && plugin.getEcon() == null) {
             lConfig.debugMsg("No money plugin found yet.");
             lGame.sendMessage(sender, "ErrorPlugin");
             return true;
@@ -255,7 +253,7 @@ public class MainCommandExecutor implements CommandExecutor {
         for (int i = 0; i < winnerArray.size(); i++) {
             split = winnerArray.get(i).split(":");
             if (split[2].equalsIgnoreCase("0")) {
-                winListPrice = plugin.getMethod().format(Double.parseDouble(split[1]));
+                winListPrice = plugin.getEcon().format(Double.parseDouble(split[1]));
             } else {
                 winListPrice = split[1] + " " + Etc.formatMaterialName(
                         Material.valueOf(split[2]));

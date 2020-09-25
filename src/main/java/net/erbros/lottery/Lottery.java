@@ -1,20 +1,19 @@
 package net.erbros.lottery;
 
-import net.erbros.lottery.register.payment.Method;
-import net.erbros.lottery.register.payment.Methods;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class Lottery extends JavaPlugin {
+    private static Economy econ = null;
 
-    public Methods methods = null;
     public boolean timerStarted = false;
-    private Method method = null;
     private Server server = null;
     private LotteryConfig lConfig;
     private LotteryGame lGame;
@@ -29,7 +28,6 @@ public class Lottery extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
         FileConfiguration config;
         lConfig = new LotteryConfig(this);
         lGame = new LotteryGame(this);
@@ -39,11 +37,16 @@ public class Lottery extends JavaPlugin {
         saveConfig();
         lConfig.loadConfig();
 
+        if (!setupEconomy() && lConfig.useEconomy()) {
+            getLogger().severe("Disabled due to no Vault dependency found!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         final PluginManager pm = getServer().getPluginManager();
 
         server = getServer();
 
-        pm.registerEvents(new PluginListener(this), this);
         if (lConfig.useWelcomeMessage()) {
             pm.registerEvents(new PlayerJoinListener(this), this);
         }
@@ -190,17 +193,20 @@ public class Lottery extends JavaPlugin {
         return extendTime;
     }
 
-    public Method getMethod() {
-        if (method == null) {
-            Methods.setMethod(this.getServer().getPluginManager());
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
         }
-        if (method == null) {
-            this.getLogger().severe("Could not find valid economy plugin.");
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
         }
-        return method;
+        econ = rsp.getProvider();
+        return econ != null;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
+    public Economy getEcon() {
+        return econ;
     }
+
 }

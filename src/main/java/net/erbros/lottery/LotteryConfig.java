@@ -358,6 +358,6 @@ public class LotteryConfig {
     }
 
     public String formatCurrency(double amount) {
-        return plugin.getMethod().format(amount);
+        return plugin.getEcon().format(amount);
     }
 }
