@@ -10,17 +10,16 @@ import java.util.Map;
 
 public class Etc {
     public static String formatCost(double cost, LotteryConfig lConfig) {
-        if (lConfig.useiConomy()) {
-            return lConfig.formatCurrency((formatAmount(cost, lConfig.useiConomy())));
+        if (lConfig.useEconomy()) {
+            return lConfig.formatCurrency((formatAmount(cost, lConfig.useEconomy())));
         } else {
             return String.valueOf(
-                    (int) formatAmount(cost, lConfig.useiConomy())).concat(
+                    (int) formatAmount(cost, lConfig.useEconomy())).concat(
                     " " + formatMaterialName(lConfig.getMaterial()));
         }
     }
 
     public static double formatAmount(double amount, final boolean usingiConomy) {
-
         if (usingiConomy) {
             return Math.floor(amount * 100) / 100;
         } else {
@@ -28,8 +27,8 @@ public class Etc {
         }
     }
 
-    public static String formatMaterialName(final int materialId) {
-        String rawMaterialName = Material.getMaterial(materialId).toString();
+    public static String formatMaterialName(Material material) {
+        String rawMaterialName = material.name();
         rawMaterialName = rawMaterialName.toLowerCase(Locale.ENGLISH);
         // Large first letter.
         final String firstLetterCapital = rawMaterialName.substring(0, 1).toUpperCase();

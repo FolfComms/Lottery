@@ -1,23 +1,23 @@
 package net.erbros.lottery.register.payment.methods;
 
 import net.erbros.lottery.register.payment.Method;
-import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 
 public class VaultEco implements Method {
 
-    private Vault vault;
+    private Plugin vault;
     private Economy economy;
 
-    public Vault getPlugin() {
+    public Plugin getPlugin() {
         return this.vault;
     }
 
     public void setPlugin(Plugin plugin) {
-        this.vault = (Vault) plugin;
+        this.vault = plugin;
         RegisteredServiceProvider<Economy> economyProvider = this.vault.getServer().getServicesManager().getRegistration(
                 net.milkbowl.vault.economy.Economy.class);
         if (economyProvider != null) {
@@ -51,11 +51,11 @@ public class VaultEco implements Method {
         return this.economy.getBanks().contains(bank);
     }
 
-    public boolean hasAccount(String name) {
+    public boolean hasAccount(OfflinePlayer name) {
         return this.economy.hasAccount(name);
     }
 
-    public boolean hasBankAccount(String bank, String name) {
+    public boolean hasBankAccount(String bank, OfflinePlayer name) {
         return this.economy.isBankOwner(bank, name).transactionSuccess() || this.economy.isBankMember(
                 bank, name).transactionSuccess();
     }
@@ -71,7 +71,7 @@ public class VaultEco implements Method {
         return this.economy.bankDeposit(name, balance).transactionSuccess();
     }
 
-    public MethodAccount getAccount(String name) {
+    public MethodAccount getAccount(OfflinePlayer name) {
         if (!hasAccount(name)) {
             return null;
         }
@@ -79,7 +79,7 @@ public class VaultEco implements Method {
         return new VaultAccount(name, this.economy);
     }
 
-    public MethodBankAccount getBankAccount(String bank, String name) {
+    public MethodBankAccount getBankAccount(String bank, OfflinePlayer name) {
         if (!hasBankAccount(bank, name)) {
             return null;
         }
@@ -89,47 +89,43 @@ public class VaultEco implements Method {
 
     public boolean isCompatible(Plugin plugin) {
         try {
-            RegisteredServiceProvider<Economy> ecoPlugin = plugin.getServer().getServicesManager().getRegistration(
-                    net.milkbowl.vault.economy.Economy.class);
-            return plugin instanceof Vault && ecoPlugin != null && !ecoPlugin.getProvider().getName().equals(
-                    "Essentials Economy");
-        } catch (LinkageError e) {
-            return false;
-        } catch (Exception e) {
+            RegisteredServiceProvider<Economy> ecoPlugin = plugin.getServer().getServicesManager().getRegistration(Economy.class);
+            return ecoPlugin != null;
+        } catch (LinkageError | Exception e) {
             return false;
         }
     }
 
     public class VaultAccount implements MethodAccount {
 
-        private final String name;
+        private final OfflinePlayer player;
         private final Economy economy;
 
-        public VaultAccount(String name, Economy economy) {
-            this.name = name;
+        public VaultAccount(OfflinePlayer name, Economy economy) {
+            this.player = name;
             this.economy = economy;
         }
 
         public double balance() {
-            return this.economy.getBalance(this.name);
+            return this.economy.getBalance(this.player);
         }
 
         public boolean set(double amount) {
-            if (!this.economy.withdrawPlayer(this.name, this.balance()).transactionSuccess()) {
+            if (!this.economy.withdrawPlayer(this.player, this.balance()).transactionSuccess()) {
                 return false;
             }
             if (amount == 0) {
                 return true;
             }
-            return this.economy.depositPlayer(this.name, amount).transactionSuccess();
+            return this.economy.depositPlayer(this.player, amount).transactionSuccess();
         }
 
         public boolean add(double amount) {
-            return this.economy.depositPlayer(this.name, amount).transactionSuccess();
+            return this.economy.depositPlayer(this.player, amount).transactionSuccess();
         }
 
         public boolean subtract(double amount) {
-            return this.economy.withdrawPlayer(this.name, amount).transactionSuccess();
+            return this.economy.withdrawPlayer(this.player, amount).transactionSuccess();
         }
 
         public boolean multiply(double amount) {

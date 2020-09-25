@@ -1,6 +1,9 @@
 package net.erbros.lottery;
 
 import net.erbros.lottery.register.payment.Method;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,12 +28,12 @@ public class LotteryGame {
     public boolean addPlayer(final Player player, final int maxAmountOfTickets, final int numberOfTickets) {
 
         // Do the ticket cost money or item?
-        if (lConfig.useiConomy()) {
+        if (lConfig.useEconomy()) {
             // Do the player have money?
             // First checking if the player got an account, if not let's create
             // it.
-            plugin.getMethod().hasAccount(player.getName());
-            final Method.MethodAccount account = plugin.getMethod().getAccount(player.getName());
+            plugin.getMethod().hasAccount(player);
+            final Method.MethodAccount account = plugin.getMethod().getAccount(player);
 
             // And lets withdraw some money
             if (account != null && account.hasEnough(lConfig.getCost() * numberOfTickets)) {
@@ -112,7 +115,7 @@ public class LotteryGame {
     public double winningAmount() {
         double amount;
         final ArrayList<String> players = playersInFile("lotteryPlayers.txt");
-        amount = players.size() * Etc.formatAmount(lConfig.getCost(), lConfig.useiConomy());
+        amount = players.size() * Etc.formatAmount(lConfig.getCost(), lConfig.useEconomy());
         lConfig.debugMsg("playerno: " + players.size() + " amount: " + amount);
         // Set the net payout as configured in the config.
         if (lConfig.getNetPayout() > 0) {
@@ -126,7 +129,7 @@ public class LotteryGame {
         amount += lConfig.getJackpot();
 
         // format it once again.
-        amount = Etc.formatAmount(amount, lConfig.useiConomy());
+        amount = Etc.formatAmount(amount, lConfig.useEconomy());
 
         return amount;
     }
@@ -135,18 +138,18 @@ public class LotteryGame {
         double amount = 0;
 
         // we only have tax is the net payout is between 0 and 100.
-        if (lConfig.getNetPayout() >= 100 || lConfig.getNetPayout() <= 0 || !lConfig.useiConomy()) {
+        if (lConfig.getNetPayout() >= 100 || lConfig.getNetPayout() <= 0 || !lConfig.useEconomy()) {
             return amount;
         }
 
         final ArrayList<String> players = playersInFile("lotteryPlayers.txt");
-        amount = players.size() * Etc.formatAmount(lConfig.getCost(), lConfig.useiConomy());
+        amount = players.size() * Etc.formatAmount(lConfig.getCost(), lConfig.useEconomy());
 
         // calculate the tax.
         amount = amount * (1 - (lConfig.getNetPayout() / 100));
 
         // format it once again.
-        amount = Etc.formatAmount(amount, lConfig.useiConomy());
+        amount = Etc.formatAmount(amount, lConfig.useEconomy());
 
         return amount;
     }
@@ -158,10 +161,10 @@ public class LotteryGame {
         return sold;
     }
 
-    public void removeFromClaimList(final Player player) {
+    public void removeFromClaimList(Player player) {
         // Do the player have something to claim?
-        final ArrayList<String> otherPlayersClaims = new ArrayList<String>();
-        final ArrayList<String> claimArray = new ArrayList<String>();
+        final ArrayList<String> otherPlayersClaims = new ArrayList<>();
+        final ArrayList<String> claimArray = new ArrayList<>();
         try {
             final BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryClaim.txt"));
@@ -176,7 +179,7 @@ public class LotteryGame {
                 }
             }
             in.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
 
         // Did the user have any claims?
@@ -185,9 +188,9 @@ public class LotteryGame {
         }
         // Do a bit payout.
         for (String aClaimArray : claimArray) {
-            final String[] split = aClaimArray.split(":");
-            final int claimAmount = Integer.parseInt(split[1]);
-            final int claimMaterial = Integer.parseInt(split[2]);
+            String[] split = aClaimArray.split(":");
+            int claimAmount = Integer.parseInt(split[1]);
+            Material claimMaterial = Material.valueOf(split[2]);
             player.getInventory().addItem(new ItemStack(claimMaterial, claimAmount));
             sendMessage(player, "PlayerClaim", Etc.formatMaterialName(claimMaterial));
         }
@@ -203,11 +206,11 @@ public class LotteryGame {
 
             out.close();
 
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
-    public void addToClaimList(final String playerName, final int winningAmount, final int winningMaterial) {
+    public void addToClaimList(final String playerName, final int winningAmount, Material winningMaterial) {
         // Then first add new winner, and after that the old winners.
         try {
             final BufferedWriter out = new BufferedWriter(
@@ -219,7 +222,7 @@ public class LotteryGame {
         }
     }
 
-    public void addToWinnerList(final String playerName, final Double winningAmount, final int winningMaterial) {
+    public void addToWinnerList(String playerName, Double winningAmount, int winningCurrency, Material winningMaterial) {
         // This list should be 10 players long.
         final ArrayList<String> winnerArray = new ArrayList<String>();
         try {
@@ -236,7 +239,7 @@ public class LotteryGame {
         try {
             final BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryWinners.txt"));
-            out.write(playerName + ":" + winningAmount + ":" + winningMaterial);
+            out.write(playerName + ":" + winningAmount + ":" + (winningMaterial != null ? winningMaterial : winningCurrency));
             out.newLine();
             // How long is the array? We just want the top 9. Removing index 9
             // since its starting at 0.
@@ -298,7 +301,7 @@ public class LotteryGame {
 
                     lConfig.setJackpot(jackpot);
 
-                    addToWinnerList("Jackpot", jackpot, lConfig.useiConomy() ? 0 : lConfig.getMaterial());
+                    addToWinnerList("Jackpot", jackpot, 0, lConfig.getMaterial());
                     lConfig.setLastwinner("Jackpot");
                     lConfig.setLastwinneramount(jackpot);
                     broadcastMessage("NoWinnerRollover", Etc.formatCost(jackpot, lConfig));
@@ -313,10 +316,11 @@ public class LotteryGame {
 
             lConfig.debugMsg("Rand: " + Integer.toString(rand));
             double amount = winningAmount();
+            OfflinePlayer player = Bukkit.getOfflinePlayer(players.get(rand));
             int ticketsBought = playerInList(players.get(rand));
-            if (lConfig.useiConomy()) {
-                plugin.getMethod().hasAccount(players.get(rand));
-                final Method.MethodAccount account = plugin.getMethod().getAccount(players.get(rand));
+            if (lConfig.useEconomy()) {
+                plugin.getMethod().hasAccount(player);
+                final Method.MethodAccount account = plugin.getMethod().getAccount(player);
 
                 // Just make sure the account exists, or make it with default
                 // value.
@@ -324,11 +328,11 @@ public class LotteryGame {
                 account.add(amount);
                 // Announce the winner:
                 broadcastMessage("WinnerCongrat", players.get(rand), Etc.formatCost(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
-                addToWinnerList(players.get(rand), amount, 0);
+                addToWinnerList(players.get(rand), amount, 0, null);
 
                 double taxAmount = taxAmount();
                 if (taxAmount() > 0 && lConfig.getTaxTarget().length() > 0) {
-                    String target = lConfig.getTaxTarget();
+                    OfflinePlayer target = Bukkit.getOfflinePlayer(lConfig.getTaxTarget());
                     plugin.getMethod().hasAccount(target);
                     final Method.MethodAccount targetaccount = plugin.getMethod().getAccount(target);
                     if (targetaccount != null) {
@@ -340,11 +344,11 @@ public class LotteryGame {
 
             } else {
                 // let's throw it to an int.
-                final int matAmount = (int) Etc.formatAmount(amount, lConfig.useiConomy());
+                final int matAmount = (int) Etc.formatAmount(amount, lConfig.useEconomy());
                 amount = (double) matAmount;
                 broadcastMessage("WinnerCongrat", players.get(rand), Etc.formatCost(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
                 broadcastMessage("WinnerCongratClaim");
-                addToWinnerList(players.get(rand), amount, lConfig.getMaterial());
+                addToWinnerList(players.get(rand), amount, 0, lConfig.getMaterial());
 
                 addToClaimList(players.get(rand), matAmount, lConfig.getMaterial());
             }

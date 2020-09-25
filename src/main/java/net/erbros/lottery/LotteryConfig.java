@@ -1,5 +1,6 @@
 package net.erbros.lottery;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ public class LotteryConfig {
     private double cost;
     private double hours;
     private long nextexec;
-    private boolean useiConomy;
-    private int material;
+    private boolean useEconomy;
+    private Material material;
     private double extraInPot;
     private boolean broadcastBuying;
     private int broadcastBuyingTime;
@@ -52,8 +53,8 @@ public class LotteryConfig {
 
         hours = config.getDouble("config.hours", 24);
 
-        useiConomy = config.getBoolean("config.useiConomy", true);
-        material = config.getInt("config.material", 266);
+        useEconomy = config.getBoolean("config.useEconomy", true);
+        material = Material.valueOf(config.getString("config.material", "GOLD_INGOT"));
         broadcastBuying = config.getBoolean("config.broadcastBuying", true);
         broadcastBuyingTime = config.getInt("config.broadcastBuyingTime", 120);
         welcomeMessage = config.getBoolean("config.welcomeMessage", true);
@@ -64,7 +65,7 @@ public class LotteryConfig {
         ticketsAvailable = config.getInt("config.numberOfTicketsAvailable", 0);
         jackpot = config.getDouble("config.jackpot", 0);
         nextexec = config.getLong("config.nextexec");
-        cost = Etc.formatAmount(config.getDouble("config.cost", 5), useiConomy);
+        cost = Etc.formatAmount(config.getDouble("config.cost", 5), useEconomy);
         lastwinner = config.getString("config.lastwinner", "");
         lastwinneramount = config.getDouble("config.lastwinneramount", 0);
         buyingExtendDeadline = config.getBoolean("config.buyingExtend.enabled", true);
@@ -249,11 +250,11 @@ public class LotteryConfig {
         set("config.nextexec", nextexec);
     }
 
-    public boolean useiConomy() {
-        return useiConomy;
+    public boolean useEconomy() {
+        return useEconomy;
     }
 
-    public int getMaterial() {
+    public Material getMaterial() {
         return material;
     }
 

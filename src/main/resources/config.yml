@@ -1,10 +1,10 @@
 config:
   # Set this option to true if your using ANY supported economy system
-    useiConomy: false
+    useEconomy: false
   # Cost per ticket     
     cost: 5
   # If you aren't using an economy system, which item is used for currency
-    material: 266
+    material: GOLD_INGOT
     
   # How long between draws  
     hours: 2   

@@ -2,6 +2,7 @@ name: Lottery
 main: net.erbros.lottery.Lottery
 version: 0.9.4
 authors:
+  - Checkium
   - Erbros
   - KHobbits
 website: www.erbros.net

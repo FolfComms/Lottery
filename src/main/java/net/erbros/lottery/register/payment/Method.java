@@ -1,5 +1,6 @@
 package net.erbros.lottery.register.payment;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 
 
@@ -85,7 +86,7 @@ public interface Method {
      * @param name Account name
      * @return <code>boolean</code>
      */
-    public boolean hasAccount(String name);
+    public boolean hasAccount(OfflinePlayer player);
 
     /**
      * Check to see if an account
@@ -96,7 +97,7 @@ public interface Method {
      * @param name Account name
      * @return <code>boolean</code>
      */
-    public boolean hasBankAccount(String bank, String name);
+    public boolean hasBankAccount(String bank, OfflinePlayer player);
 
     /**
      * Returns a
@@ -107,7 +108,7 @@ public interface Method {
      * @return <code>MethodAccount</code> <em>or</em>
      * <code>Null</code>
      */
-    public MethodAccount getAccount(String name);
+    public MethodAccount getAccount(OfflinePlayer name);
 
     /**
      * Returns a
@@ -115,11 +116,11 @@ public interface Method {
      * <code>name</code>.
      *
      * @param bank Bank name
-     * @param name Account name
+     * @param player Offline player
      * @return <code>MethodBankAccount</code> <em>or</em>
      * <code>Null</code>
      */
-    public MethodBankAccount getBankAccount(String bank, String name);
+    public MethodBankAccount getBankAccount(String bank, OfflinePlayer player);
 
     /**
      * Checks to verify the compatibility between this Method and a plugin.
