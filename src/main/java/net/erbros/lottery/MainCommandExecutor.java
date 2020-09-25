@@ -16,9 +16,9 @@ import java.util.ArrayList;
 
 public class MainCommandExecutor implements CommandExecutor {
 
-    private Lottery plugin;
-    private LotteryConfig lConfig;
-    private LotteryGame lGame;
+    private final Lottery plugin;
+    private final LotteryConfig lConfig;
+    private final LotteryGame lGame;
 
     public MainCommandExecutor(Lottery plugin) {
         this.plugin = plugin;
@@ -186,7 +186,7 @@ public class MainCommandExecutor implements CommandExecutor {
             return;
         }
 
-        if (lGame.addPlayer(player, lConfig.getMaxTicketsEachUser(), buyTickets)) {
+        if (lGame.addPlayer(player, buyTickets)) {
             // You got your ticket.
             lGame.sendMessage(
                     sender, "BoughtTicket", buyTickets, lConfig.getPlural("ticket", buyTickets), Utils.getCostMessage(lConfig.getCost() * buyTickets, lConfig));
@@ -237,7 +237,7 @@ public class MainCommandExecutor implements CommandExecutor {
 
     public void commandWinners(CommandSender sender, String[] args) {
         // Get the winners.
-        ArrayList<String> winnerArray = new ArrayList<String>();
+        ArrayList<String> winnerArray = new ArrayList<>();
         try {
             BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryWinners.txt"));
@@ -246,7 +246,7 @@ public class MainCommandExecutor implements CommandExecutor {
                 winnerArray.add(str);
             }
             in.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         String[] split;
         String winListPrice;

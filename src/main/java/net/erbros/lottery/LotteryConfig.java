@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 public class LotteryConfig {
 
-    private Lottery plugin;
+    private final Lottery plugin;
     private FileConfiguration config;
     private double cost;
     private double hours;
@@ -86,7 +86,7 @@ public class LotteryConfig {
     }
 
     public void loadCustomMessages() {
-        messages = new HashMap<String, List<String>>();
+        messages = new HashMap<>();
         messages.put("prefix", formatCustomMessage("message.prefix", "&6[LOTTERY]&r"));
 
         messages.put("Welcome", formatCustomMessage("message.Welcome", "%prefix% &fDraw in: &c%drawLong%"));
@@ -206,7 +206,7 @@ public class LotteryConfig {
     }
 
     public List<String> formatCustomMessage(String node, String def) {
-        List<String> fList = new ArrayList<String>();
+        List<String> fList = new ArrayList<>();
         // Lets find a msg.
         String msg = config.getString(node, def);
         config.set(node, msg);
@@ -286,11 +286,6 @@ public class LotteryConfig {
 
     public double getNetPayout() {
         return netPayout;
-    }
-
-    public void setNetPayout(double netPayout) {
-        this.netPayout = netPayout;
-        set("config.netPayout", netPayout);
     }
 
     public boolean clearExtraInPot() {

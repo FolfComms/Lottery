@@ -8,14 +8,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerJoinListener implements Listener {
 
-    private Lottery plugin;
-    private LotteryConfig lConfig;
-    private LotteryGame lGame;
+    private final LotteryGame lGame;
 
     public PlayerJoinListener(Lottery plugin) {
-        this.plugin = plugin;
         lGame = plugin.getLotteryGame();
-        lConfig = plugin.getLotteryConfig();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

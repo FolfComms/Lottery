@@ -4,7 +4,6 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -65,10 +64,6 @@ public class Lottery extends JavaPlugin {
 
     }
 
-    public Server getBukkitServer() {
-        return server;
-    }
-
     public LotteryConfig getLotteryConfig() {
         return lConfig;
     }
@@ -95,8 +90,8 @@ public class Lottery extends JavaPlugin {
         if (timerStarted) {
             // Let's try and stop any running threads.
             try {
-                Bukkit.getServer().getScheduler().cancelTasks((Plugin) this);
-            } catch (ClassCastException exception) {
+                Bukkit.getServer().getScheduler().cancelTasks(this);
+            } catch (ClassCastException ignored) {
             }
 
             extendtime = extendTime();
@@ -153,8 +148,8 @@ public class Lottery extends JavaPlugin {
     public void extendLotteryDraw() {
         // Cancel timer.
         try {
-            Bukkit.getServer().getScheduler().cancelTasks((Plugin) this);
-        } catch (ClassCastException exception) {
+            Bukkit.getServer().getScheduler().cancelTasks(this);
+        } catch (ClassCastException ignored) {
         }
 
         long extendtime;

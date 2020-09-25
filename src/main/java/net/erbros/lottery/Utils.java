@@ -83,7 +83,7 @@ public class Utils {
             if (!stringTimeLeft.equalsIgnoreCase("")) {
                 stringTimeLeft += "and ";
             }
-            stringTimeLeft += Integer.toString(secs) + " " + lConfig.getPlural("second", secs);
+            stringTimeLeft += secs + " " + lConfig.getPlural("second", secs);
         }
 
         return stringTimeLeft;
@@ -107,7 +107,7 @@ public class Utils {
         int newInt = 0;
         try {
             newInt = Integer.parseInt(arg);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         return Math.max(newInt, 0);
     }
@@ -116,7 +116,7 @@ public class Utils {
         double newDouble = 0;
         try {
             newDouble = Double.parseDouble(arg);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
         return newDouble > 0 ? newDouble : 0;
     }

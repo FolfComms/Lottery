@@ -5,8 +5,8 @@ import java.util.TimerTask;
 
 class LotteryDraw extends TimerTask {
 
-    private Lottery plugin;
-    private boolean draw;
+    private final Lottery plugin;
+    private final boolean draw;
 
     public LotteryDraw(Lottery plugin, boolean draw) {
         this.plugin = plugin;
@@ -16,13 +16,7 @@ class LotteryDraw extends TimerTask {
     public void run() {
 
         if (draw && plugin.isLotteryDue()) {
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(
-                    plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            plugin.lotteryDraw();
-                        }
-                    });
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, plugin::lotteryDraw);
 
         } else {
             plugin.extendLotteryDraw();

@@ -16,15 +16,15 @@ import java.util.regex.Matcher;
 
 public class LotteryGame {
 
-    private Lottery plugin;
-    private LotteryConfig lConfig;
+    private final Lottery plugin;
+    private final LotteryConfig lConfig;
 
     public LotteryGame(Lottery plugin) {
         this.plugin = plugin;
         lConfig = plugin.getLotteryConfig();
     }
 
-    public boolean addPlayer(Player player, int maxAmountOfTickets, int numberOfTickets) {
+    public boolean addPlayer(Player player, int numberOfTickets) {
 
         // Do the ticket cost money or item?
         if (lConfig.useEconomy()) {
@@ -59,13 +59,13 @@ public class LotteryGame {
         try {
             BufferedWriter out = new BufferedWriter(
                     new FileWriter(plugin.getDataFolder() + File.separator + "lotteryPlayers.txt", true));
-            for (Integer i = 0; i < numberOfTickets; i++) {
+            for (int i = 0; i < numberOfTickets; i++) {
                 out.write(player.getName());
                 out.newLine();
             }
             out.close();
 
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
 
         return true;
@@ -89,14 +89,14 @@ public class LotteryGame {
                 }
             }
             in.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
 
         return numberOfTickets;
     }
 
     public ArrayList<String> playersInFile(String file) {
-        ArrayList<String> players = new ArrayList<String>();
+        ArrayList<String> players = new ArrayList<>();
         try {
             BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + file));
@@ -106,7 +106,7 @@ public class LotteryGame {
                 players.add(str);
             }
             in.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         return players;
     }
@@ -217,13 +217,13 @@ public class LotteryGame {
             out.write(playerName + ":" + winningAmount + ":" + winningMaterial);
             out.newLine();
             out.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
     public void addToWinnerList(String playerName, Double winningAmount, int winningCurrency, Material winningMaterial) {
         // This list should be 10 players long.
-        ArrayList<String> winnerArray = new ArrayList<String>();
+        ArrayList<String> winnerArray = new ArrayList<>();
         try {
             BufferedReader in = new BufferedReader(
                     new FileReader(plugin.getDataFolder() + File.separator + "lotteryWinners.txt"));
@@ -232,7 +232,7 @@ public class LotteryGame {
                 winnerArray.add(str);
             }
             in.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         // Then first add new winner, and after that the old winners.
         try {
@@ -254,7 +254,7 @@ public class LotteryGame {
             }
             out.close();
 
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
@@ -331,7 +331,7 @@ public class LotteryGame {
             } else {
                 // let's throw it to an int.
                 int matAmount = (int) Utils.formatAmount(amount, lConfig.useEconomy());
-                amount = (double) matAmount;
+                amount = matAmount;
                 broadcastMessage("WinnerCongrat", players.get(rand), Utils.getCostMessage(amount, lConfig), ticketsBought, lConfig.getPlural("ticket", ticketsBought));
                 broadcastMessage("WinnerCongratClaim");
                 addToWinnerList(players.get(rand), amount, 0, lConfig.getMaterial());
@@ -368,7 +368,7 @@ public class LotteryGame {
             out.write("");
             out.close();
 
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 
