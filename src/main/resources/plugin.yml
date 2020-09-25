@@ -1,11 +1,13 @@
 name: Lottery
 main: net.erbros.lottery.Lottery
-version: 0.9.4
+version: 1.0.0
 authors:
   - Checkium
   - Erbros
   - KHobbits
 website: www.erbros.net
+softdepend:
+  - Vault
 commands:
   lottery:
     description: Provides access to Permissions commands and information.
@@ -29,6 +31,9 @@ permissions:
   lottery.admin.addtopot:
       description: Access to /lottery addtopot command.
       default: op
+  lottery.admin.settaxtarget:
+    description: Access to /lottery settaxtarget command.
+    default: op
   lottery.admin.editconfig:
       description: Access to ingame config editing and reloading.
       default: op

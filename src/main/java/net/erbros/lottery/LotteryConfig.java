@@ -35,6 +35,8 @@ public class LotteryConfig {
     private double buyingExtendBase;
     private double buyingExtendMultiplier;
     private String taxTarget;
+    private String defaultTaxTarget;
+    private long taxTargetUntil;
 
     private HashMap<String, List<String>> messages;
 
@@ -73,6 +75,8 @@ public class LotteryConfig {
         buyingExtendBase = config.getDouble("config.buyingExtend.extendBase", 15);
         buyingExtendMultiplier = config.getDouble("config.buyingExtend.extendMultiplier", 1.5);
         taxTarget = config.getString("config.taxTarget", "");
+        defaultTaxTarget = config.getString("config.defaultTaxTarget", "");
+        taxTargetUntil = config.getLong("config.taxTargetUntil", 0);
 
         // Load messages?
         loadCustomMessages();
@@ -129,6 +133,7 @@ public class LotteryConfig {
         messages.put("WinnerSummary", formatCustomMessage("message.WinnerSummary", "%prefix% There was a total of %0% %1% buying %2% %3%"));
 
         messages.put("AddToPot", formatCustomMessage("message.AddToPot", "%prefix% Added &a%0% &rto pot. Extra total is &a%1%"));
+        messages.put("SetTaxTarget", formatCustomMessage("message.SetTaxTarget", "%prefix% Set %0% as tax target for %1% hours"));
         messages.put("ConfigCost", formatCustomMessage("message.ConfigCost", "%prefix% Cost changed to &c%0%"));
         messages.put("ConfigHours", formatCustomMessage("message.ConfigHours", "%prefix% Hours changed to &c%0%"));
         messages.put("ConfigMax", formatCustomMessage("message.ConfigMax", "%prefix% Max amount of tickets changed to &c%0%"));
@@ -142,9 +147,10 @@ public class LotteryConfig {
         messages.put(
                 "HelpAdmin", formatCustomMessage(
                         "message.HelpAdmin",
-                        "%prefix% &1/lottery draw&r : Draw lottery.%newline%%prefix% &1/lottery addtopot&r : Add number to pot.%newline%%prefix% &1/lottery " +
+                        "%prefix% &1/lottery draw&r : Draw lottery.%newline%%prefix% &1/lottery addtopot&r : Add number to pot.%newline%%prefix% &1/lottery settaxtarget&r : Set tax target.%newline%%prefix% &1/lottery " +
                                 "config&r : Edit the config."));
         messages.put("HelpPot", formatCustomMessage("message.HelpPot", "%prefix% /lottery addtopot <number>"));
+        messages.put("HelpTaxTarget", formatCustomMessage("message.HelpTaxTarget", "%prefix% /lottery settaxtarget <target> [hours]"));
         messages.put(
                 "HelpConfig", formatCustomMessage(
                         "message.HelpConfig",
@@ -272,6 +278,16 @@ public class LotteryConfig {
         setExtraInPot(extraInPot);
     }
 
+    public void setTaxTarget(String target) {
+        this.taxTarget = target;
+        set("config.taxTarget", taxTarget);
+    }
+
+    public void setTaxTargetUntil(long until) {
+        this.taxTargetUntil = until;
+        set("config.taxTargetUntil", taxTargetUntil);
+    }
+
     public boolean useBroadcastBuying() {
         return broadcastBuying;
     }
@@ -349,6 +365,13 @@ public class LotteryConfig {
     }
 
     public String getTaxTarget() {
+        if (taxTargetUntil > 0) {
+            if (System.currentTimeMillis() > taxTargetUntil) {
+                setTaxTarget(defaultTaxTarget);
+                setTaxTargetUntil(0);
+                return defaultTaxTarget;
+            }
+        }
         return taxTarget;
     }
 

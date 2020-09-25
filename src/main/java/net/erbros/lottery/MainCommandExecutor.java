@@ -71,6 +71,12 @@ public class MainCommandExecutor implements CommandExecutor {
             } else {
                 lGame.sendMessage(sender, "ErrorAccess");
             }
+        } else if (args[0].equalsIgnoreCase("settaxtarget")) {
+            if (sender.hasPermission("lottery.admin.settaxtarget")) {
+                commandSetTaxAcc(sender, args);
+            } else {
+                lGame.sendMessage(sender, "ErrorAccess");
+            }
         } else {
             lGame.sendMessage(sender, "ErrorCommand");
         }
@@ -309,5 +315,27 @@ public class MainCommandExecutor implements CommandExecutor {
         // Lets just reload the config.
         lConfig.loadConfig();
         lGame.sendMessage(sender, "ConfigReload");
+    }
+
+    public void commandSetTaxAcc(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            lGame.sendMessage(sender, "HelpTaxTarget");
+            return;
+        }
+
+        String acc = args[1];
+
+        double hours = 0;
+        if (args.length > 2) {
+            try {
+                hours = Double.parseDouble(args[2]);
+            } catch (NumberFormatException e) {
+                lGame.sendMessage(sender, "ErrorNumber");
+            }
+        }
+
+        lConfig.setTaxTarget(acc);
+        lConfig.setTaxTargetUntil((long) (System.currentTimeMillis() + (hours * 60 * 60 * 1000)));
+        lGame.sendMessage(sender, "SetTaxTarget", acc, hours <= 0 ? "\u221E" : hours);
     }
 }
